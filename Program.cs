@@ -7,12 +7,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Security;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ssltest
 {
+  
     public class Program
     {
         public static void Main(string[] args)
@@ -24,10 +31,15 @@ namespace ssltest
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+
                     webBuilder.UseKestrel(options =>
                     {
+                        var logger = options.ApplicationServices.GetRequiredService<ILogger<Program>>();
+
+
                         options.ListenLocalhost(5002, listenOption =>
                        {
+                           listenOption.UseConnectionLogging("Tls");
                            var httpsOptions = new HttpsConnectionAdapterOptions();
                            //httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
                            //httpsOptions.CheckCertificateRevocation = true;
@@ -43,11 +55,27 @@ namespace ssltest
                            //    };
                            var serverCert = new X509Certificate2("server.pfx", "1234");
                            httpsOptions.ServerCertificate = serverCert;
+
+                           listenOption.Use(async (connectionContext, next) =>
+                           {
+                               await TlsFilterConnectionMiddlewareExtensions.ProcessAsync(connectionContext, next, logger);
+                           });
+
+
                            listenOption.UseHttps(httpsOptions);
+                           listenOption.UseTlsFilter();
+
+
+
+
+
                        });
                     });
                     webBuilder.UseStartup<Startup>();
                 });
+
+
+      
 
         private static async Task<string> GetApiDataAsync()
         {

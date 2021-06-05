@@ -1,1 +1,15 @@
-.vs/
+/.vs
+/AspNetCoreCertificateAuth/bin
+/AspNetCoreCertificateAuth/obj
+/AspNetCoreCertificateAuthApi/bin
+/AspNetCoreCertificateAuthApi/obj
+/AspNetCoreCertificateAuthApiSelfSigned/bin
+/AspNetCoreCertificateAuthApiChained/obj
+/AspNetCoreCertificateAuthApiSelfSigned/obj
+/AspNetCoreCertificateAuthApiChained/bin
+/AspNetCoreCertificateAuthHandler/obj
+/AspNetCoreCertificateAuthApiChained/AspNetCoreCertificateAuthApiChained.csproj.user
+/_chainedServerLogs.txt
+/_clientLogs.txt
+/CreateChainedCertificates/bin/
+/CreateChainedCertificates/obj
