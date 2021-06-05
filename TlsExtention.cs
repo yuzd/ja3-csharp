@@ -87,7 +87,7 @@ namespace ssltest
             var data = buffer.First.Span;
 
             TlsFrameHelper.TlsFrameInfo info = default;
-            if (!TlsFrameHelper.TryGetFrameInfo(data, ref info, TlsFrameHelper.ProcessingOptions.All, Callback))
+            if (!TlsFrameHelper.TryGetFrameInfo(data, ref info))
             {
                 return false;
             }
@@ -115,10 +115,6 @@ namespace ssltest
             return true;
         }
 
-        private static bool Callback(ref TlsFrameHelper.TlsFrameInfo info, ExtensionType type, ReadOnlySpan<byte> extensionsdata)
-        {
-            return true;
-        }
 
         private static bool AllowHost(string targetName)
         {
