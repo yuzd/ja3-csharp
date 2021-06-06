@@ -39,20 +39,8 @@ namespace ssltest
 
                         options.ListenLocalhost(5002, listenOption =>
                        {
-                           listenOption.UseConnectionLogging("Tls");
                            var httpsOptions = new HttpsConnectionAdapterOptions();
-                           //httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-                           //httpsOptions.CheckCertificateRevocation = true;
-                           //httpsOptions.ClientCertificateValidation +=
-                           //    (certificate2, chain, arg3) =>
-                           //    {
-                           //        //return true;
-                           //        //this is where we verify the thumbprint of a connected client matches the thumbprint we expect
-                           //        //NOTE: this is just a simple example of verifying a client cert.
-                           //        return certificate2.Thumbprint.Equals(
-                           //           "2A39D43A8FE2CAE54542C768F61AE79097FAB6F5",
-                           //           StringComparison.InvariantCultureIgnoreCase);
-                           //    };
+                          
                            var serverCert = new X509Certificate2("server.pfx", "1234");
                            httpsOptions.ServerCertificate = serverCert;
 

@@ -7,8 +7,10 @@ using System.Diagnostics;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Security;
 using System.Security.Authentication;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ssltest
@@ -23,7 +25,7 @@ namespace ssltest
         AppData = 23
     }
 
-    public enum CurveType:byte
+    public enum CurveType : byte
     {
         CurveP256 = 23,
         CurveP384 = 24,
@@ -134,6 +136,11 @@ namespace ssltest
         post_handshake_auth = 49,
         signature_algorithms_cert = 50,
         key_share = 51,
+        extensionQUICTransportParams = 57,
+        extensionCustom = 1234,  // not IANA assigned
+        extensionNextProtoNeg = 13172, // not IANA assigned
+        extensionApplicationSettings = 17513, // not IANA assigned
+        extensionChannelID=30032,// not IANA assigned
         renegotiation_info = 65281
     }
 
@@ -146,7 +153,7 @@ namespace ssltest
         public override string ToString() => $"{Version}:{Type}[{Length}]";
     }
 
-    
+
 
     public static class TlsFrameHelper
     {
@@ -221,13 +228,47 @@ namespace ssltest
                 }
             }
 
+            public (string, string) getSig()
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append((int)Header.Version);
+                sb.Append(",");
+                if (_ciphers != null)
+                {
+                    sb.Append(string.Join("-", _ciphers.Select(r => (int)r)));
+                }
+                sb.Append(",");
+                if (_extensions != null)
+                {
+                    sb.Append(string.Join("-", _extensions.Select(r => (int)r)));
+                }
+                sb.Append(",");
+                if (_supportedgroups != null)
+                {
+                    sb.Append(string.Join("-", _supportedgroups.Select(r => (int)r)));
+                }
+                sb.Append(",");
+                if (_ecPointFormats != null)
+                {
+                    sb.Append(string.Join("-", _ecPointFormats.Select(r => (int)r)));
+                }
+                String str = sb.ToString();
+                using var md5 = MD5.Create();
+                var result = md5.ComputeHash(Encoding.ASCII.GetBytes(str));
+                var strResult = BitConverter.ToString(result);
+                var sig = strResult.Replace("-", "").ToLower();
+                return (str, sig);
+            }
+
             public override string ToString()
             {
+
                 if (Header.Type == TlsContentType.Handshake)
                 {
                     if (HandshakeType == TlsHandshakeType.ClientHello)
                     {
-                        return $"{Header.Version}:{HandshakeType}[{Header.Length}] TargetName='{TargetName}' SupportedVersion='{SupportedVersions}' ApplicationProtocols='{ApplicationProtocols}'";
+
+                        return $"{Header.Version}:{HandshakeType}[{Header.Length}] TargetName='{TargetName}' SupportedVersion='{SupportedVersions}' ApplicationProtocols='{ApplicationProtocols}'-->sig:{getSig()}";
                     }
                     else if (HandshakeType == TlsHandshakeType.ServerHello)
                     {
@@ -636,7 +677,7 @@ namespace ssltest
 
                     info.ApplicationProtocols |= alpn;
                 }
-                
+
                 if (extensionType == ExtensionType.supported_groups)
                 {
                     if (!TryGetSupportedGroups(extensionData, ref info))
@@ -798,7 +839,7 @@ namespace ssltest
             info._ecPointFormats = new List<EcPointFormat>();
             foreach (var code in alpnList)
             {
-                if(code>2) continue;
+                if (code > 2) continue;
                 EcPointFormat t = (EcPointFormat)code;
                 info._ecPointFormats.Add(t);
             }
@@ -912,8 +953,8 @@ namespace ssltest
             info._ciphers = new TlsCipherSuite[count];
             for (int i = 0; i < count; i++)
             {
-                TlsCipherSuite t =(TlsCipherSuite)BinaryPrimitives.ReadUInt16BigEndian(bytes.Slice(i * 2, 2));
-                if (isNotGrease((int) t))
+                TlsCipherSuite t = (TlsCipherSuite)BinaryPrimitives.ReadUInt16BigEndian(bytes.Slice(i * 2, 2));
+                if (isNotGrease((int)t))
                 {
                     info._ciphers[i] = t;
                 }

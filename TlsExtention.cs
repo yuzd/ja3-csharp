@@ -111,7 +111,9 @@ namespace ssltest
             {
                 logger.LogInformation("SNI: {host}", info.TargetName);
             }
-            Console.WriteLine("ClientHello=>" + info);
+
+            var valueTuple = info.getSig();
+            Console.WriteLine("指纹:" + valueTuple.Item1 + Environment.NewLine  + "Md5:" + valueTuple.Item2);
             return true;
         }
 
@@ -122,7 +124,7 @@ namespace ssltest
             {
                 return true;
             }
-            return false;
+            return true;
         }
     }
 }
