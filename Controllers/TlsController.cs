@@ -39,18 +39,19 @@ namespace ssltest.Controllers
             string tlsHashMd5 = arr[2];
             string originText = arr[3];
             var arrOrigin = originText.Split('|');
-            if (arrOrigin.Length != 4)
+            if (arrOrigin.Length != 5)
             {
                 return "get sig origin fail";
             }
-
             string[] cipherList = arrOrigin[0].Split('-');
             string[] extentionList = arrOrigin[1].Split('-');
             string[] dhGroup = arrOrigin[2].Split('-');
             string[] _ecPointFormats = arrOrigin[3].Split('-');
+            string tlsVersion = arrOrigin[4];
 
             return Newtonsoft.Json.JsonConvert.SerializeObject(new
             {
+                tlsVersion = tlsVersion,
                 tcpConnectionId = tcpConnectionId,
                 tlsHashOrigin = tlsHashOrigin,
                 tlsHashMd5 = tlsHashMd5,

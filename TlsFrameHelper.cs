@@ -257,6 +257,7 @@ namespace ssltest
                     sb.Append(string.Join("-", _ecPointFormats.Select(r => (int)r)));
                     s2b.Add(string.Join("-", _ecPointFormats.Select(r => r.ToString())));
                 }
+                s2b.Add(Header.Version.ToString());
                 String str = sb.ToString();
                 using var md5 = MD5.Create();
                 var result = md5.ComputeHash(Encoding.ASCII.GetBytes(str));
@@ -333,7 +334,7 @@ namespace ssltest
                             header.Length = ((frame[3] << 8) | frame[4]);
                         }
 
-                        header.Version = TlsMinorVersionToProtocol(frame[2]);
+                        header.Version = TlsMinorVersionToProtocol(frame[10]);
                     }
                     else
                     {
