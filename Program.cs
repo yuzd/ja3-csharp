@@ -37,7 +37,7 @@ namespace ssltest
                         var logger = options.ApplicationServices.GetRequiredService<ILogger<Program>>();
 
 
-                        options.ListenLocalhost(5002, listenOption =>
+                        options.ListenAnyIP(5002, listenOption =>
                        {
                            var httpsOptions = new HttpsConnectionAdapterOptions();
                           
@@ -51,7 +51,7 @@ namespace ssltest
 
 
                            listenOption.UseHttps(httpsOptions);
-                           listenOption.UseTlsFilter();
+                           //listenOption.UseTlsFilter();
 
 
 

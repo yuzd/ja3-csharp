@@ -228,37 +228,45 @@ namespace ssltest
                 }
             }
 
-            public (string, string) getSig()
+            public (string, string,string) getSig()
             {
                 StringBuilder sb = new StringBuilder();
+                List<string> s2b = new List<string>();
                 sb.Append((int)Header.Version);
                 sb.Append(",");
                 if (_ciphers != null)
                 {
                     sb.Append(string.Join("-", _ciphers.Select(r => (int)r)));
+                    s2b.Add(string.Join("-", _ciphers.Select(r => r.ToString())));
                 }
                 sb.Append(",");
                 if (_extensions != null)
                 {
                     sb.Append(string.Join("-", _extensions.Select(r => (int)r)));
+                    s2b.Add(string.Join("-", _extensions.Select(r => r.ToString())));
                 }
                 sb.Append(",");
                 if (_supportedgroups != null)
                 {
                     sb.Append(string.Join("-", _supportedgroups.Select(r => (int)r)));
+                    s2b.Add(string.Join("-", _supportedgroups.Select(r => r.ToString())));
                 }
                 sb.Append(",");
                 if (_ecPointFormats != null)
                 {
                     sb.Append(string.Join("-", _ecPointFormats.Select(r => (int)r)));
+                    s2b.Add(string.Join("-", _ecPointFormats.Select(r => r.ToString())));
                 }
                 String str = sb.ToString();
                 using var md5 = MD5.Create();
                 var result = md5.ComputeHash(Encoding.ASCII.GetBytes(str));
                 var strResult = BitConverter.ToString(result);
                 var sig = strResult.Replace("-", "").ToLower();
-                return (str, sig);
+                return (str, sig, string.Join('|', s2b));
             }
+
+
+           
 
             public override string ToString()
             {

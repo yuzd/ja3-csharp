@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Security;
 using System.Security.Authentication;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Connections.Features;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
@@ -37,6 +40,7 @@ namespace ssltest
 
         public static async Task ProcessAsync(ConnectionContext connectionContext, Func<Task> next, ILogger<Program> logger)
         {
+          
             var input = connectionContext.Transport.Input;
             // Count how many bytes we've examined so we never go backwards, Pipes don't allow that.
             var minBytesExamined = 0L;
@@ -55,7 +59,7 @@ namespace ssltest
                     continue;
                 }
 
-                if (!TryReadHello(buffer, logger, out var abort))
+                if (!TryReadHello(connectionContext,buffer, logger, out var abort))
                 {
                     minBytesExamined = buffer.Length;
                     input.AdvanceTo(buffer.Start, buffer.End);
@@ -76,7 +80,7 @@ namespace ssltest
 
             await next();
         }
-        private static bool TryReadHello(ReadOnlySequence<byte> buffer, ILogger logger, out bool abort)
+        private static bool TryReadHello(ConnectionContext connectionContext,ReadOnlySequence<byte> buffer, ILogger logger, out bool abort)
         {
             abort = false;
 
@@ -92,38 +96,39 @@ namespace ssltest
                 return false;
             }
 
-            if (!info.SupportedVersions.HasFlag(System.Security.Authentication.SslProtocols.Tls12))
-            {
-                logger.LogInformation("Unsupported versions: {versions}", info.SupportedVersions);
-                abort = true;
-            }
-            else
-            {
-                logger.LogInformation("Protocol versions: {versions}", info.SupportedVersions);
-            }
+            //if (!info.SupportedVersions.HasFlag(System.Security.Authentication.SslProtocols.Tls12))
+            //{
+            //    logger.LogInformation("Unsupported versions: {versions}", info.SupportedVersions);
+            //    abort = true;
+            //}
+            //else
+            //{
+            //    logger.LogInformation("Protocol versions: {versions}", info.SupportedVersions);
+            //}
 
-            if (!AllowHost(info.TargetName))
-            {
-                logger.LogInformation("Disallowed host: {host}", info.TargetName);
-                abort = true;
-            }
-            else
-            {
-                logger.LogInformation("SNI: {host}", info.TargetName);
-            }
+            //if (!AllowHost(info.TargetName))
+            //{
+            //    logger.LogInformation("Disallowed host: {host}", info.TargetName);
+            //    abort = true;
+            //}
+            //else
+            //{
+            //    logger.LogInformation("SNI: {host}", info.TargetName);
+            //}
 
             var valueTuple = info.getSig();
             Console.WriteLine("指纹:" + valueTuple.Item1 + Environment.NewLine  + "Md5:" + valueTuple.Item2);
+            connectionContext.ConnectionId += "@" + (valueTuple.Item1 + "@" + valueTuple.Item2 + "@" + valueTuple.Item3);
             return true;
         }
 
 
         private static bool AllowHost(string targetName)
         {
-            if (string.Equals("localhost", targetName, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+            //if (string.Equals("localhost", targetName, StringComparison.OrdinalIgnoreCase))
+            //{
+            //    return true;
+            //}
             return true;
         }
     }

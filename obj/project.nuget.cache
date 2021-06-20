@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "MqQ63EycouVSD4eCJkUkzOm0LUC5Wf8hAi0TEhIsh+j66kx8+/fgblRVfTES2Hj54wq0ZWWv+nUw101ULJKBIQ==",
+  "dgSpecHash": "4XUHDmfqxUw/Smp/X4lXkCuWFYtx3bHfgrtRwB0+2TNvBjTAJ6RiTdc5sB6ildqsJSxECibAa4l60wvmLy0HLQ==",
   "success": true,
   "projectFilePath": "F:\\workspace\\github\\csharp\\ssltest\\ssltest\\ssltest.csproj",
   "expectedPackageFiles": [
@@ -13,6 +13,7 @@
     "C:\\Users\\Administrator\\.nuget\\packages\\microsoft.extensions.options\\5.0.0\\microsoft.extensions.options.5.0.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\microsoft.extensions.primitives\\5.0.0\\microsoft.extensions.primitives.5.0.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\swashbuckle.aspnetcore\\5.6.3\\swashbuckle.aspnetcore.5.6.3.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\5.6.3\\swashbuckle.aspnetcore.swagger.5.6.3.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\5.6.3\\swashbuckle.aspnetcore.swaggergen.5.6.3.nupkg.sha512",

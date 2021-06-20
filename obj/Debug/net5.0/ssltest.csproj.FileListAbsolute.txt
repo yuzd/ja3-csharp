@@ -29,3 +29,4 @@ F:\workspace\github\csharp\ssltest\ssltest\obj\Debug\net5.0\ssltest.pdb
 F:\workspace\github\csharp\ssltest\ssltest\obj\Debug\net5.0\ssltest.genruntimeconfig.cache
 F:\workspace\github\csharp\ssltest\ssltest\bin\Debug\net5.0\server.pfx
 F:\workspace\github\csharp\ssltest\ssltest\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.Certificate.dll
+F:\workspace\github\csharp\ssltest\ssltest\bin\Debug\net5.0\Newtonsoft.Json.dll
