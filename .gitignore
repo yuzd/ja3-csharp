@@ -13,3 +13,9 @@
 /_clientLogs.txt
 /CreateChainedCertificates/bin/
 /CreateChainedCertificates/obj
+_ReSharper.Caches/
+bin/
+obj/
+ssltest.csproj.user
+.config/
+Properties/
