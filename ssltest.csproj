@@ -11,6 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="kawayiyi_com.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="server.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
