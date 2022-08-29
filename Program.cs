@@ -37,11 +37,11 @@ namespace ssltest
                         var logger = options.ApplicationServices.GetRequiredService<ILogger<Program>>();
 
 
-                        options.ListenAnyIP(443, listenOption =>
+                        options.ListenAnyIP(5002, listenOption =>
                        {
                            var httpsOptions = new HttpsConnectionAdapterOptions();
                           
-                           var serverCert = new X509Certificate2("kawayiyi_com.pfx", "qpO4u3cFB9VHrBTt");
+                           var serverCert = new X509Certificate2("server.pfx", "1234");
                            httpsOptions.ServerCertificate = serverCert;
 
                            listenOption.Use(async (connectionContext, next) =>
