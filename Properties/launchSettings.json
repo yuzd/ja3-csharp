@@ -2,11 +2,15 @@
   "profiles": {
     "ja3-csharp": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "COMPLUS_ZapDisable": "1",
+        "COMPLUS_JitMinOpts": "1",
+        "COMPlus_TieredCompilation": "0",
+        "COMPLUS_ReadyToRun": "0"
       },
-      "applicationUrl": "https://localhost:52961;http://localhost:52962"
+      "applicationUrl": "https://localhost:5002"
     }
   }
 }

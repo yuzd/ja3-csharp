@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
-namespace ssltest
+namespace ja3Csharp
 {
     public static class TlsFilterConnectionMiddlewareExtensions
     {

@@ -3,7 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -17,7 +19,7 @@ using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ssltest
+namespace ja3Csharp
 {
   
     public class Program
@@ -49,14 +51,43 @@ namespace ssltest
                                await TlsFilterConnectionMiddlewareExtensions.ProcessAsync(connectionContext, next, logger);
                            });
 
-
+                           
+                           //listenOption.UseConnectionHandler<MyTCPConnectionHandler>();
                            listenOption.UseHttps(httpsOptions);
                            //listenOption.UseTlsFilter();
+                           // listenOption.Use((context, next) =>
+                           // {
+                           //     Func<Task> func = (Func<Task>) (() => next(context));
+                           //    return  n.Invoke();
+                           // });
+                           
+                           listenOption.Use((Func<ConnectionDelegate, ConnectionDelegate>) (next =>  (ConnectionDelegate) ( context =>
+                           {
+                               Func<Task> func =  () =>
+                               {
+                                   try
+                                   {
+                                       var connectionFeatures = context.Features;
+                                       
+                                       
+                                       ReadResult readResult  = context.Transport.Input.ReadAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                                       ReadOnlySequence<byte> buffer = readResult.Buffer;
+
+                                       return next(context);
+                                   }
+                                   finally
+                                   {
+                                   
+                                       
+                                       Console.Write("enda");
+                                   }
+                               };
+                               return  func();
+                           })));
 
 
 
-
-
+                           
                        });
                     });
                     webBuilder.UseStartup<Startup>();

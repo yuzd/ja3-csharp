@@ -13,7 +13,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ssltest
+namespace ja3Csharp
 {
     // SSL3/TLS protocol frames definitions . https://halfrost.com/https-extensions/
     //https://github.com/lafaspot/ja3_4java/blob/cf2c574eea699a72db57312627d1ca2ed8809131/src/main/java/com/lafaspot/ja3_4java/JA3Signature.java#L229

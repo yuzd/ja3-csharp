@@ -4,33 +4,40 @@ using System.Text;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.Extensions.Logging;
 
-namespace ssltest
+namespace ja3Csharp
 {
     public class MyTCPConnectionHandler : ConnectionHandler
     {
+        private readonly ILogger<MyTCPConnectionHandler> _logger;
         public override async Task OnConnectedAsync(ConnectionContext connection)
         {
-            IDuplexPipe pipe = connection.Transport;
-            PipeReader pipeReader = pipe.Input;
-
-            while (true)
-            {
-                ReadResult readResult = await pipeReader.ReadAsync();
-                ReadOnlySequence<byte> readResultBuffer = readResult.Buffer;
-
-               
-
-                var s = GetString(readResultBuffer,Encoding.UTF8);
-                Console.WriteLine(s);
-
-                if (readResult.IsCompleted)
-                {
-                    break;
-                }
-
-                pipeReader.AdvanceTo(readResultBuffer.Start, readResultBuffer.End);
-            }
+            
+            _logger.LogInformation(connection.ConnectionId + " connected");
+            
+            // IDuplexPipe pipe = connection.Transport;
+            // PipeReader pipeReader = pipe.Input;
+            //
+            // while (true)
+            // {
+            //     ReadResult readResult = await pipeReader.ReadAsync();
+            //     ReadOnlySequence<byte> readResultBuffer = readResult.Buffer;
+            //
+            //    
+            //
+            //     var s = GetString(readResultBuffer,Encoding.UTF8);
+            //     Console.WriteLine(s);
+            //
+            //     if (readResult.IsCompleted)
+            //     {
+            //         break;
+            //     }
+            //
+            //     pipeReader.AdvanceTo(readResultBuffer.Start, readResultBuffer.End);
+            // }
+            
+            
         }
 
         public static string GetString( ReadOnlySequence<byte> payload,

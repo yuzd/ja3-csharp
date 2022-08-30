@@ -8,8 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace ssltest
+namespace ja3Csharp
 {
     public class Startup
     {
@@ -70,11 +71,14 @@ namespace ssltest
             //    });
 
 
+            services.TryAddSingleton<MyConnectionHeartbeatFeature>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ssltest", Version = "v1" });
             });
+            
+            
         }
 
         private static byte[] StringToByteArray(string hex)
@@ -88,6 +92,7 @@ namespace ssltest
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

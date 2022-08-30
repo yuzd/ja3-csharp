@@ -9,7 +9,7 @@ using System.Net.Http;
 using System.Net.Security;
 using Newtonsoft.Json;
 
-namespace ssltest.Controllers
+namespace ja3Csharp.Controllers
 {
     [ApiController]
     [Route("[controller]")]
