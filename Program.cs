@@ -21,7 +21,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ja3Csharp
 {
-  
     public class Program
     {
         public static void Main(string[] args)
@@ -33,68 +32,48 @@ namespace ja3Csharp
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-
                     webBuilder.UseKestrel(options =>
                     {
                         var logger = options.ApplicationServices.GetRequiredService<ILogger<Program>>();
 
 
                         options.ListenAnyIP(5002, listenOption =>
-                       {
-                           var httpsOptions = new HttpsConnectionAdapterOptions();
-                          
-                           var serverCert = new X509Certificate2("server.pfx", "1234");
-                           httpsOptions.ServerCertificate = serverCert;
+                        {
+                            var httpsOptions = new HttpsConnectionAdapterOptions();
 
-                           listenOption.Use(async (connectionContext, next) =>
-                           {
-                               await TlsFilterConnectionMiddlewareExtensions.ProcessAsync(connectionContext, next, logger);
-                           });
+                            var serverCert = new X509Certificate2("server.pfx", "1234");
+                            httpsOptions.ServerCertificate = serverCert;
 
-                           
-                           //listenOption.UseConnectionHandler<MyTCPConnectionHandler>();
-                           listenOption.UseHttps(httpsOptions);
-                           //listenOption.UseTlsFilter();
-                           // listenOption.Use((context, next) =>
-                           // {
-                           //     Func<Task> func = (Func<Task>) (() => next(context));
-                           //    return  n.Invoke();
-                           // });
-                           
-                           listenOption.Use((Func<ConnectionDelegate, ConnectionDelegate>) (next =>  (ConnectionDelegate) ( context =>
-                           {
-                               Func<Task> func =  () =>
-                               {
-                                   try
-                                   {
-                                       var connectionFeatures = context.Features;
-                                       
-                                       
-                                       ReadResult readResult  = context.Transport.Input.ReadAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                                       ReadOnlySequence<byte> buffer = readResult.Buffer;
-
-                                       return next(context);
-                                   }
-                                   finally
-                                   {
-                                   
-                                       
-                                       Console.Write("enda");
-                                   }
-                               };
-                               return  func();
-                           })));
+                            listenOption.Use(async (connectionContext, next) =>
+                            {
+                                await TlsFilterConnectionMiddlewareExtensions.ProcessAsync(connectionContext, next, logger);
+                            });
 
 
+                            //listenOption.UseConnectionHandler<MyTCPConnectionHandler>();
+                            listenOption.UseHttps(httpsOptions);
+                            //listenOption.UseTlsFilter();
+                            // listenOption.Use((context, next) =>
+                            // {
+                            //     Func<Task> func = (Func<Task>) (() => next(context));
+                            //    return  n.Invoke();
+                            // });
 
-                           
-                       });
+                            listenOption.Use( (next => (context =>
+                            {
+                                async Task Func()
+                                {
+                                    await TlsFilterConnectionMiddlewareExtensions.ProcessH2Async(context, logger);
+                                    await next(context);
+                                }
+
+                                return Func();
+                            })));
+                        });
                     });
                     webBuilder.UseStartup<Startup>();
                 });
 
-
-      
 
         private static async Task<string> GetApiDataAsync()
         {
