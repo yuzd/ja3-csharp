@@ -63,7 +63,12 @@ namespace ja3Csharp
                 while (H2Extention.TryReadFrame(ref buffer, _incomingFrame, 16384, out payload))
                 {
                     frameReceived = true;
-                    Console.WriteLine("StreamId:" + _incomingFrame.StreamId + "->" + _incomingFrame);
+                
+                    var data = H2Extention.ProcessFrameAsync(_incomingFrame, payload);
+                    if (data != null)
+                    {
+                        Console.WriteLine("StreamId:" + _incomingFrame.StreamId + "->" + _incomingFrame + "->" + data);
+                    }
                 }
             }
             catch (Exception e)

@@ -10,6 +10,7 @@
 using System;
 using System.Buffers;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -46,6 +47,39 @@ namespace ja3Csharp
             return true;
         }
 
+        public static object ProcessFrameAsync(Http2Frame _incomingFrame,ReadOnlySequence<byte> payload)
+        {
+            switch (_incomingFrame.Type)
+            {
+                case Http2FrameType.SETTINGS:
+                    Http2PeerSettings settings = new Http2PeerSettings();
+                    var http2PeerSettings = ReadSettings(payload);
+                    settings.Update(http2PeerSettings);
+                    return settings;
+                case Http2FrameType.WINDOW_UPDATE:
+                    return _incomingFrame.WindowUpdateSizeIncrement;
+                    break;
+                default:
+                    break;
+            }
+
+            return null;
+        }
+
+        
+        public static IList<Http2PeerSetting> ReadSettings(
+            in ReadOnlySequence<byte> payload)
+        {
+            ReadOnlySpan<byte> payload1 = payload.ToSpan();
+            Http2PeerSetting[] http2PeerSettingArray = new Http2PeerSetting[payload1.Length / 6];
+            for (int index = 0; index < http2PeerSettingArray.Length; ++index)
+            {
+                http2PeerSettingArray[index] = ReadSetting(payload1);
+                payload1 = payload1.Slice(6);
+            }
+            return (IList<Http2PeerSetting>) http2PeerSettingArray;
+        }
+        private static Http2PeerSetting ReadSetting(ReadOnlySpan<byte> payload) => new Http2PeerSetting((Http2SettingsParameter) BinaryPrimitives.ReadUInt16BigEndian(payload), BinaryPrimitives.ReadUInt32BigEndian(payload.Slice(2)));
         public static bool TryReadFrame(
             ref ReadOnlySequence<byte> buffer,
             Http2Frame frame,
@@ -206,21 +240,22 @@ namespace ja3Csharp
 
         internal object ShowFlags()
         {
-            switch (this.Type)
-            {
-                case Http2FrameType.DATA:
-                    return (object)this.DataFlags;
-                case Http2FrameType.HEADERS:
-                    return (object)this.HeadersFlags;
-                case Http2FrameType.SETTINGS:
-                    return (object)this.SettingsFlags;
-                case Http2FrameType.PING:
-                    return (object)this.PingFlags;
-                case Http2FrameType.CONTINUATION:
-                    return (object)this.ContinuationFlags;
-                default:
-                    return (object)string.Format("0x{0:x}", (object)this.Flags);
-            }
+            return (object)string.Format("0x{0:x}", (object)this.Flags);
+            // switch (this.Type)
+            // {
+            //     case Http2FrameType.DATA:
+            //         return (object)this.DataFlags;
+            //     case Http2FrameType.HEADERS:
+            //         return (object)this.HeadersFlags;
+            //     case Http2FrameType.SETTINGS:
+            //         return (object)this.SettingsFlags;
+            //     case Http2FrameType.PING:
+            //         return (object)this.PingFlags;
+            //     case Http2FrameType.CONTINUATION:
+            //         return (object)this.ContinuationFlags;
+            //     default:
+            //         
+            // }
         }
 
         public override string ToString() => string.Format("{0} Stream: {1} Length: {2} Flags: {3}", (object)this.Type, (object)this.StreamId,
@@ -424,4 +459,113 @@ namespace ja3Csharp
         PADDED = 8,
         PRIORITY = 32, // 0x20
     }
+    internal readonly struct Http2PeerSetting
+    {
+        public Http2PeerSetting(Http2SettingsParameter parameter, uint value)
+        {
+            this.Parameter = parameter;
+            this.Value = value;
+        }
+
+        public Http2SettingsParameter Parameter { get; }
+
+        public uint Value { get; }
+    }
+    internal enum Http2SettingsParameter : ushort
+    {
+        SETTINGS_HEADER_TABLE_SIZE = 1,
+        SETTINGS_ENABLE_PUSH = 2,
+        SETTINGS_MAX_CONCURRENT_STREAMS = 3,
+        SETTINGS_INITIAL_WINDOW_SIZE = 4,
+        SETTINGS_MAX_FRAME_SIZE = 5,
+        SETTINGS_MAX_HEADER_LIST_SIZE = 6,
+    }
+  internal class Http2PeerSettings
+  {
+    public const uint DefaultHeaderTableSize = 4096;
+    public const bool DefaultEnablePush = true;
+    public const uint DefaultMaxConcurrentStreams = 4294967295;
+    public const uint DefaultInitialWindowSize = 65535;
+    public const uint DefaultMaxFrameSize = 16384;
+    public const uint DefaultMaxHeaderListSize = 4294967295;
+    public const uint MaxWindowSize = 2147483647;
+    internal const int MinAllowedMaxFrameSize = 16384;
+    internal const int MaxAllowedMaxFrameSize = 16777215;
+
+    public uint HeaderTableSize { get; set; } = 4096;
+
+    public bool EnablePush { get; set; } = true;
+
+    public uint MaxConcurrentStreams { get; set; } = uint.MaxValue;
+
+    public uint InitialWindowSize { get; set; } = (uint) ushort.MaxValue;
+
+    public uint MaxFrameSize { get; set; } = 16384;
+
+    public uint MaxHeaderListSize { get; set; } = uint.MaxValue;
+
+    public Dictionary<int, uint> allData = new Dictionary<int, uint>();
+
+    public void Update(IList<Http2PeerSetting> settings)
+    {
+      foreach (Http2PeerSetting setting in (IEnumerable<Http2PeerSetting>) settings)
+      {
+        uint num = setting.Value;
+        switch (setting.Parameter)
+        {
+          case Http2SettingsParameter.SETTINGS_HEADER_TABLE_SIZE:
+            this.HeaderTableSize = num;
+            allData.Add((int)Http2SettingsParameter.SETTINGS_HEADER_TABLE_SIZE,num);
+            continue;
+          case Http2SettingsParameter.SETTINGS_ENABLE_PUSH:
+            if (num != 0U && num != 1U)
+              throw new Exception("Http2SettingsParameter.SETTINGS_ENABLE_PUSH");
+            this.EnablePush = num == 1U;
+            allData.Add((int)Http2SettingsParameter.SETTINGS_ENABLE_PUSH,num);
+            continue;
+          case Http2SettingsParameter.SETTINGS_MAX_CONCURRENT_STREAMS:
+            this.MaxConcurrentStreams = num;
+            allData.Add((int)Http2SettingsParameter.SETTINGS_MAX_CONCURRENT_STREAMS,num);
+            continue;
+          case Http2SettingsParameter.SETTINGS_INITIAL_WINDOW_SIZE:
+            this.InitialWindowSize = num <= (uint) int.MaxValue ? num : throw new Exception("Http2SettingsParameter.SETTINGS_INITIAL_WINDOW_SIZE");
+            allData.Add((int)Http2SettingsParameter.SETTINGS_INITIAL_WINDOW_SIZE,num);
+            continue;
+          case Http2SettingsParameter.SETTINGS_MAX_FRAME_SIZE:
+            this.MaxFrameSize = num >= 16384U && num <= 16777215U ? num : throw new Exception("Http2SettingsParameter.SETTINGS_MAX_FRAME_SIZE");
+            allData.Add((int)Http2SettingsParameter.SETTINGS_MAX_FRAME_SIZE,num);
+            continue;
+          case Http2SettingsParameter.SETTINGS_MAX_HEADER_LIST_SIZE:
+            this.MaxHeaderListSize = num;
+            allData.Add((int)Http2SettingsParameter.SETTINGS_MAX_HEADER_LIST_SIZE,num);
+            continue;
+          default:
+            continue;
+        }
+      }
+    }
+
+    internal IList<Http2PeerSetting> GetNonProtocolDefaults()
+    {
+      List<Http2PeerSetting> protocolDefaults = new List<Http2PeerSetting>(1);
+      if (this.HeaderTableSize != 4096U)
+        protocolDefaults.Add(new Http2PeerSetting(Http2SettingsParameter.SETTINGS_HEADER_TABLE_SIZE, this.HeaderTableSize));
+      if (!this.EnablePush)
+        protocolDefaults.Add(new Http2PeerSetting(Http2SettingsParameter.SETTINGS_ENABLE_PUSH, this.EnablePush ? 1U : 0U));
+      if (this.MaxConcurrentStreams != uint.MaxValue)
+        protocolDefaults.Add(new Http2PeerSetting(Http2SettingsParameter.SETTINGS_MAX_CONCURRENT_STREAMS, this.MaxConcurrentStreams));
+      if (this.InitialWindowSize != (uint) ushort.MaxValue)
+        protocolDefaults.Add(new Http2PeerSetting(Http2SettingsParameter.SETTINGS_INITIAL_WINDOW_SIZE, this.InitialWindowSize));
+      if (this.MaxFrameSize != 16384U)
+        protocolDefaults.Add(new Http2PeerSetting(Http2SettingsParameter.SETTINGS_MAX_FRAME_SIZE, this.MaxFrameSize));
+      if (this.MaxHeaderListSize != uint.MaxValue)
+        protocolDefaults.Add(new Http2PeerSetting(Http2SettingsParameter.SETTINGS_MAX_HEADER_LIST_SIZE, this.MaxHeaderListSize));
+      return (IList<Http2PeerSetting>) protocolDefaults;
+    }
+
+    public override string ToString()
+    {
+        return Newtonsoft.Json.JsonConvert.SerializeObject(allData);
+    }
+  }
 }
