@@ -29,7 +29,7 @@ namespace ja3Csharp.Controllers
             }
 
             var arr = sig.Split('@');
-            if (arr.Length != 4)
+            if (arr.Length < 4)
             {
                 return "get sig fail";
             }
@@ -49,6 +49,24 @@ namespace ja3Csharp.Controllers
             string[] _ecPointFormats = arrOrigin[3].Split('-');
             string tlsVersion = arrOrigin[4];
 
+
+            var h2D = new Dictionary<string,object>();
+            string h2 = arr.Length > 4 ? arr[4] : "";
+            if (!string.IsNullOrEmpty(h2))
+            {
+                var arr2 = h2.Split('^');
+                if (arr2.Length == 3)
+                {
+                    var settings = arr2[1];
+                    var updateWindows = arr2[2];
+                    var settings_detail = settings.Split(new string[] { "->" }, StringSplitOptions.None);
+                    var updateWindows_detail = updateWindows.Split(new string[] { "->" }, StringSplitOptions.None);
+                    h2D.Add(settings_detail[0],JsonConvert.DeserializeObject<Dictionary<string,string>>(settings_detail[1])); 
+                    h2D.Add(updateWindows_detail[0],updateWindows_detail[1]); 
+                }
+               
+                
+            }
             return Newtonsoft.Json.JsonConvert.SerializeObject(new
             {
                 tlsVersion = tlsVersion,
@@ -59,6 +77,8 @@ namespace ja3Csharp.Controllers
                 extentions = extentionList,
                 supportedgroups = dhGroup,
                 ecPointFormats = _ecPointFormats,
+                proto = HttpContext.Request.Protocol ,
+                h2 = h2D
             }, Formatting.Indented);
 
         }

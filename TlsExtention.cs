@@ -60,16 +60,32 @@ namespace ja3Csharp
                 bool frameReceived = false;
                 ReadOnlySequence<byte> payload;
                 var _incomingFrame = new Http2Frame();
+                var h2Sig = "";
+
                 while (H2Extention.TryReadFrame(ref buffer, _incomingFrame, 16384, out payload))
                 {
                     frameReceived = true;
-                
+
                     var data = H2Extention.ProcessFrameAsync(_incomingFrame, payload);
                     if (data != null)
                     {
                         Console.WriteLine("StreamId:" + _incomingFrame.StreamId + "->" + _incomingFrame + "->" + data);
+                        h2Sig += "^" + (_incomingFrame.Type)+"->"+data;
                     }
+
+                   
+
+                } 
+                if (!string.IsNullOrEmpty(h2Sig))
+                {
+                    connectionContext.ConnectionId += "@" + h2Sig;
+
                 }
+                
+                // input.AdvanceTo(buffer.Start, buffer.End);
+                // header读取
+                // ReadResult result2 = await input.ReadAsync();
+                // ReadOnlySequence<byte> buffer2 = result2.Buffer;
             }
             catch (Exception e)
             {
