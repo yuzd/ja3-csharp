@@ -14,7 +14,7 @@ https://mp.weixin.qq.com/s/BvotXrFXwYvGWpqHKoj3uQ
 
 ![image](https://dimg04.c-ctrip.com/images/0v50f120009x0k3rw360F.png)
 
-# 如何获取tls指纹
+# 如何获取tls&http2指纹
 ```csharp
         [HttpGet]
         public string Get()
