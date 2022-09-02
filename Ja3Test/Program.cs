@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
@@ -19,17 +20,26 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace Ja3Test
 {
     public class Program
     {
+
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var config = File.ReadAllText("appsettings.json");
+            if (string.IsNullOrEmpty(config))
+            {
+                throw new Exception("application.json not found");
+            }
+
+            var data = JsonConvert.DeserializeObject<Config>(config);
+            CreateHostBuilder(data,args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+         static IHostBuilder CreateHostBuilder(Config data,string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
@@ -37,11 +47,11 @@ namespace Ja3Test
                     {
                         var logger = options.ApplicationServices.GetRequiredService<ILogger<Program>>();
 
-                        options.ListenAnyIP(5002, listenOption =>
+                        options.ListenAnyIP(data.Port, listenOption =>
                         {
                             var httpsOptions = new HttpsConnectionAdapterOptions();
 
-                            var serverCert = new X509Certificate2("server.pfx", "1234");
+                            var serverCert = new X509Certificate2(data.Pfx, data.Pwd);
                             httpsOptions.ServerCertificate = serverCert;
 
                             listenOption.UseJa3Fingerprint((_) =>
@@ -55,5 +65,12 @@ namespace Ja3Test
                     webBuilder.UseStartup<Startup>();
                 });
 
+    }
+
+    class Config
+    {
+        public string Pfx { get; set; }
+        public string Pwd { get; set; }
+        public int Port { get; set; }
     }
 }
