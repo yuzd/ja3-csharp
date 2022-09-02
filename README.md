@@ -4,7 +4,7 @@ Install-Package Ja3Fingerprint
 # OnLine Test
 https://kawayiyi.com/tls
 
-# tls实现原理介绍
+# tls指纹实现原理介绍
 https://mp.weixin.qq.com/s/BvotXrFXwYvGWpqHKoj3uQ
 
 # http2指纹实现原理介绍
