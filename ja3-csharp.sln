@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ja3-csharp", "ja3-csharp.csproj", "{7D54B6D3-C71C-4203-AE84-86090922CD96}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ja3-csharp", "Ja3Test\Ja3Test.csproj", "{7D54B6D3-C71C-4203-AE84-86090922CD96}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ja3Fingerprint", "Ja3Fingerprint\Ja3Fingerprint.csproj", "{461BDAE4-2E88-4238-8894-165DF7964162}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{7D54B6D3-C71C-4203-AE84-86090922CD96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D54B6D3-C71C-4203-AE84-86090922CD96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D54B6D3-C71C-4203-AE84-86090922CD96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{461BDAE4-2E88-4238-8894-165DF7964162}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{461BDAE4-2E88-4238-8894-165DF7964162}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{461BDAE4-2E88-4238-8894-165DF7964162}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{461BDAE4-2E88-4238-8894-165DF7964162}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
