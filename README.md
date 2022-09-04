@@ -8,7 +8,7 @@ https://kawayiyi.com/tls
 https://mp.weixin.qq.com/s/BvotXrFXwYvGWpqHKoj3uQ
 
 # http2指纹实现原理介绍
- 待写文章
+ https://www.cnblogs.com/yudongdong/p/16654636.html
  
 # 如何使用
 
