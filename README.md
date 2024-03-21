@@ -1,8 +1,6 @@
 # NUGET
 Install-Package Ja3Fingerprint
 
-# OnLine Test
-https://kawayiyi.com/tls
 
 # tls指纹实现原理介绍
 https://mp.weixin.qq.com/s/BvotXrFXwYvGWpqHKoj3uQ
